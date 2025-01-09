@@ -1,5 +1,5 @@
 from flask import Blueprint
-from controllers import get_events, add_event, get_signup_events, signup_event, cancel_signup_event
+from ..controllers import get_events, add_event, get_signup_events, signup_event, cancel_signup_event
 
 routes = Blueprint('routes', __name__)
 

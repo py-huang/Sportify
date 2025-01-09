@@ -1,5 +1,5 @@
 from flask import request, jsonify, abort
-from models import db, EVENT_LIST, SIGNUP_RECORD
+from ..models import db, EVENT_LIST, SIGNUP_RECORD
 from datetime import datetime
 
 def get_events():
