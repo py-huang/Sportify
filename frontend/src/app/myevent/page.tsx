@@ -46,6 +46,36 @@ export default function Homepage() {
     setSelectedEvent(null);
   };
 
+  const cancelSignup = () => {
+    if (!selectedEvent) return;
+
+    fetch("http://localhost:8000/api/cancel_signup_event", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: "chen_0307",
+        eventId: selectedEvent.event.id,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Signup canceled:", data);
+
+        // Remove the canceled event from the list
+        setEvents((prevEvents) =>
+          prevEvents.filter((event) => event.sign_id !== selectedEvent.sign_id)
+        );
+
+        // Close the modal
+        closeModal();
+      })
+      .catch((error) => {
+        console.error("There was an error canceling the signup:", error);
+      });
+  };
+
   return (
     <div>
       <h1 className="px-4">我的報名資訊</h1>
@@ -116,8 +146,13 @@ export default function Homepage() {
               <hr />
               <p className="py-2">地點：{selectedEvent.event.location}</p>
               <hr />
+              <p className="py-2">報名時間：{selectedEvent.sign_time}</p>
+              <hr />
             </div>
-            <button className="btn btn-error  min-w-[150px] text-lg flex-shrink-0">
+            <button
+              onClick={cancelSignup}
+              className="btn btn-error  min-w-[150px] text-lg flex-shrink-0"
+            >
               取消揪團
             </button>
           </div>

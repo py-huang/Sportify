@@ -15,12 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <div className="flex flex-row justify-start w-full gap-4 p-4 ">
-      <Sider />
-      <div lang="en" className="w-full">
-        <Header />
-
-        {children}
-      </div>
+      {children}
     </div>
   );
 }

@@ -2,9 +2,9 @@ import React from "react";
 
 const Header = () => {
   return (
-    <div className="navbar bg-base-100 w-full">
+    <div className="navbar bg-base-100 w-full shadow-md rounded-lg">
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">JUST U</a>
+        <a className="btn btn-ghost bold text-2xl">揪是你</a>
       </div>
       <div className="flex-none">
         <div className="dropdown dropdown-end">

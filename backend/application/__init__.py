@@ -1,8 +1,9 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -49,7 +50,7 @@ class SIGNUP_RECORD(db.Model):
 def create_app():
     app = Flask(__name__)
 
- # 啟用 CORS，允許所有來源
+    # 啟用 CORS，允許所有來源
     CORS(app)
 
     # 載入環境變數
@@ -62,22 +63,130 @@ def create_app():
     db.init_app(app)
 
     # 註冊路由
-    # API 路由：從 MySQL 資料庫查詢事件資料
     @app.route('/api/events', methods=['GET'])
     def get_events():
-        # 使用 SQLAlchemy 查詢資料
         events = EVENT_LIST.query.all()
-        
-        # 將資料轉換成 JSON 格式
         return jsonify([event.to_dict() for event in events])
     
     @app.route('/api/signup_events/<user_id>', methods=['GET'])
     def get_signup_events(user_id):
-        # 使用 SQLAlchemy 查詢特定使用者的報名紀錄，並且 JOIN 活動資料
         signups = SIGNUP_RECORD.query.filter_by(SIGN_USER=user_id).join(EVENT_LIST).all()
-
-        # 將資料轉換成 JSON 格式並回傳
         return jsonify([signup.to_dict() for signup in signups])
 
+    # API 路由：新增活動
+    @app.route('/api/events', methods=['POST'])
+    def add_event():
+        try:
+            data = request.get_json()
+            if not data:
+                abort(400, description="Invalid JSON payload")
+
+            # 提取並驗證字段
+            date = data.get('date')
+            start_time = data.get('startTime')
+            end_time = data.get('endTime')
+            description = data.get('description')
+            location = data.get('location')
+            host = data.get('host')
+
+            if not all([date, start_time, end_time, description, location, host]):
+                abort(400, description="Missing required fields")
+
+            # 轉換字串為日期/時間格式
+            event_date = datetime.strptime(date, '%Y-%m-%d').date()
+            event_start_time = datetime.strptime(start_time, '%H:%M:%S').time()
+            event_end_time = datetime.strptime(end_time, '%H:%M:%S').time()
+
+            # 創建新活動實例
+            new_event = EVENT_LIST(
+                EVENT_DATE=event_date,
+                EVENT_START_TIME=event_start_time,
+                EVENT_END_TIME=event_end_time,
+                EVENT_SPORT=description,
+                EVENT_LOCATION=location,
+                HOST_ID=host
+            )
+
+            # 新增活動到資料庫
+            db.session.add(new_event)
+            db.session.commit()
+
+            return jsonify(new_event.to_dict()), 201  # 返回創建的活動
+
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error: {e}")
+            return jsonify({"error": str(e)}), 500
+    
+     # API 路由：報名活動
+    @app.route('/api/signup_events', methods=['POST'])
+    def signup_event():
+        try:
+            data = request.get_json()
+            if not data:
+                abort(400, description="Invalid JSON payload")
+
+            # 提取並驗證字段
+            user_id = data.get('userId')
+            event_id = data.get('eventId')
+
+            if not all([user_id, event_id]):
+                abort(400, description="Missing required fields")
+
+            # 檢查活動是否存在
+            event = EVENT_LIST.query.get(event_id)
+            if not event:
+                abort(404, description="Event not found")
+
+            # 檢查用戶是否已報名該活動
+            existing_signup = SIGNUP_RECORD.query.filter_by(SIGN_USER=user_id, SIGN_EVENT=event_id).first()
+            if existing_signup:
+                return jsonify({"message": "User has already signed up for this event."}), 400
+
+            # 創建報名記錄
+            signup = SIGNUP_RECORD(SIGN_USER=user_id, SIGN_EVENT=event_id)
+
+            # 儲存報名到資料庫
+            db.session.add(signup)
+            db.session.commit()
+
+            # 返回創建的報名記錄
+            return jsonify(signup.to_dict()), 201
+
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error: {e}")
+            return jsonify({"error": str(e)}), 500
+
+    @app.route('/api/cancel_signup_event', methods=['DELETE'])
+    def cancel_signup_event():
+        try:
+            data = request.get_json()
+            if not data:
+                abort(400, description="Invalid JSON payload")
+
+            # Extract and validate fields
+            user_id = data.get('userId')
+            event_id = data.get('eventId')
+
+            if not all([user_id, event_id]):
+                abort(400, description="Missing required fields")
+
+            # Check if the signup exists
+            signup = SIGNUP_RECORD.query.filter_by(SIGN_USER=user_id, SIGN_EVENT=event_id).first()
+            if not signup:
+                return jsonify({"message": "Signup record not found."}), 404
+
+            # Delete the signup record
+            db.session.delete(signup)
+            db.session.commit()
+
+            # Return a success message
+            return jsonify({"message": "Signup successfully canceled."}), 200
+
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error: {e}")
+            return jsonify({"error": str(e)}), 500
 
     return app
