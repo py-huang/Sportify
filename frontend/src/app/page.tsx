@@ -135,8 +135,8 @@ export default function Homepage() {
             {events.map((event) => (
               <tr
                 className="hover cursor-pointer"
-                key={event.id}
-                onClick={() => handleRowClick(event)}
+                key={`${event.id}-${event.date}`}
+                onClick={() => handleRowClick(event)} // 使用處理函數
               >
                 <th>{event.id}</th>
                 <td>{event.host}</td>

@@ -3,8 +3,96 @@ from ..models import db, EVENT_LIST, SIGNUP_RECORD, EVENT_DISCUSS
 from datetime import datetime
 
 def get_events():
-    events = EVENT_LIST.query.all()
-    return jsonify([event.to_dict() for event in events])
+    try:
+        # 取得查詢參數
+        host_id = request.args.get('host_id')
+
+        # 如果有提供 host_id，篩選該 host 的事件
+        if host_id:
+            events = EVENT_LIST.query.filter_by(HOST_ID=host_id).all()
+            if not events:
+                return jsonify({"message": f"No events found for host_id: {host_id}"}), 404
+        else:
+            # 否則返回所有事件
+            events = EVENT_LIST.query.all()
+
+        # 返回結果
+        return jsonify([event.to_dict() for event in events]), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+def delete_event(event_id):
+    try:
+        # 查找要刪除的事件
+        event = EVENT_LIST.query.get(event_id)
+        if not event:
+            return jsonify({"message": f"Event with ID {event_id} not found"}), 404
+        
+        # 刪除事件
+        db.session.delete(event)
+        db.session.commit()
+        
+        return jsonify({"message": f"Event with ID {event_id} deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+def update_event(event_id):
+    try:
+        # 查找要修改的事件
+        event = EVENT_LIST.query.get(event_id)
+        if not event:
+            return jsonify({"message": f"Event with ID {event_id} not found"}), 404
+
+        # 取得 JSON 資料
+        data = request.json
+
+        # 更新事件資訊
+        event.EVENT_DATE = data.get('date', event.EVENT_DATE)
+        event.EVENT_START_TIME = data.get('startTime', event.EVENT_START_TIME)
+        event.EVENT_END_TIME = data.get('endTime', event.EVENT_END_TIME)
+        event.EVENT_LOCATION = data.get('location', event.EVENT_LOCATION)
+        event.EVENT_SPORT = data.get('description', event.EVENT_SPORT)
+        event.HOST_ID = data.get('host', event.HOST_ID)
+
+        # 提交更改
+        db.session.commit()
+
+        return jsonify({"message": f"Event with ID {event_id} updated successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+    try:
+        # 查找要修改的事件
+        event = EVENT_LIST.query.get(event_id)
+        if not event:
+            return jsonify({"message": f"Event with ID {event_id} not found"}), 404
+
+        # 取得 JSON 資料
+        data = request.json
+
+        # 更新事件資訊
+        event.host = data.get('host', event.HOST_ID)
+        event.date = data.get('date', event.EVENT_DATE)
+        event.start_time = data.get('startTime', event.EVENT_START_TIME)
+        event.end_time = data.get('endTime', event.EVENT_END_TIME)
+        event.location = data.get('location', event.EVENT_LOCATION)
+        event.description = data.get('description', event.EVENT_SPORT)
+
+        # 提交更改
+        db.session.commit()
+
+        return jsonify({"message": f"Event with ID {event_id} updated successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 def get_signup_events(user_id):
     signups = SIGNUP_RECORD.query.filter_by(SIGN_USER=user_id).join(EVENT_LIST).all()
