@@ -15,6 +15,7 @@
 4. **EVENT_LIST**: 紀錄揪團活動信息
 5. **SIGNUP_RECORD**: 紀錄報名紀錄
 6. **JOIN_RECORD**: 紀錄參與紀錄
+7. **EVENT_DISCUSS**: 紀錄揪團討論區留言
 
 ### 資料表詳情
 
@@ -25,7 +26,7 @@
 | NAME          | varchar(10)| 姓名                  |
 | SEX           | varchar(2) | 性別                  |
 | AGE           | int        | 年齡                  |
-| IS_NCCU       | TINYINT(1) | 是否為政大學生        |
+| IS_NCCU       | TINYINT | 是否為政大學生        |
 | INTRODUCE     | varchar(100)| 自我介紹              |
 
 #### COURTS
@@ -34,8 +35,8 @@
 | COURT_LOC     | VARCHAR(10)| 場地位置              |
 | COURT_START   | TIME       | 開始時間              |
 | COURT_END     | TIME       | 結束時間              |
-| IS_RESERVED    | TINYINT(1) | 是否已預約            |
-| IS_PAID       | TINYINT(1) | 是否已付款            |
+| IS_RESERVED    | TINYINT | 是否已預約            |
+| IS_PAID       | TINYINT | 是否已付款            |
 
 #### SPORT
 | 欄位名稱      | 類型       | 描述                  |
@@ -70,5 +71,14 @@
 | JOIN_EVENT_ID  | INT       | 活動ID                |
 | JOIN_TIME     | TIME       | 加入時間              |
 | LEAVE_TIME    | TIME       | 離開時間              |
-| IS_ABSENCE    | TINYINT(1)  | 是否缺席             |
+| IS_ABSENCE    | TINYINT  | 是否缺席             |
 
+
+#### EVENT_DISCUSS
+| 欄位名稱          | 類型         | 描述                  |
+|------------------|--------------|-----------------------|
+| COMMENT_ID       | INT          | 留言ID                |
+| COMMENT_USER_ID  | VARCHAR(12)  | 使用者ID              |
+| COMMENT_EVENT    | INT          | 揪團活動ID            |
+| COMMENT          | VARCHAR(100) | 留言內容              |
+| COMMENT_TIME     | TIMESTAMP    | 留言時間              |
