@@ -68,7 +68,7 @@ export default function Homepage() {
   };
 
   return (
-    <div className="p-4"> 
+    <div className="p-4">
       <h1 className="px-4">所有揪團資訊</h1>
       <div className="overflow-x-auto">
         <table className="table">
@@ -89,7 +89,7 @@ export default function Homepage() {
             {events.map((event) => (
               <tr
                 className="hover cursor-pointer"
-                key={event.id}
+                key={`${event.id}-${event.date}`}
                 onClick={() => handleRowClick(event)} // 使用處理函數
               >
                 <th>{event.id}</th>
