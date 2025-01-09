@@ -1,5 +1,5 @@
 from flask import request, jsonify, abort
-from ..models import db, EVENT_LIST, SIGNUP_RECORD
+from ..models import db, EVENT_LIST, SIGNUP_RECORD, EVENT_DISCUSS
 from datetime import datetime
 
 def get_events():
@@ -100,6 +100,49 @@ def cancel_signup_event():
         db.session.commit()
 
         return jsonify({"message": "Signup successfully canceled."}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+def get_event_discussions(event_id):
+    try:
+        discussions = EVENT_DISCUSS.query.filter_by(COMMENT_EVENT_ID=event_id).all()
+
+        if not discussions:
+            return jsonify([]), 200
+
+        return jsonify([discussion.to_dict() for discussion in discussions]), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+def add_discussion():
+    try:
+        data = request.get_json()
+        if not data:
+            abort(400, description="Invalid JSON payload")
+
+        user_id = data.get('user_id')
+        event_id = data.get('event_id')
+        comment = data.get('comment')
+
+        if not all([user_id, event_id, comment]):
+            abort(400, description="Missing required fields")
+
+        new_comment = EVENT_DISCUSS(
+            COMMENT_USER_ID=user_id,
+            COMMENT_EVENT_ID=event_id,
+            COMMENT=comment,
+            COMMENT_TIME=datetime.now()
+        )
+
+        db.session.add(new_comment)
+        db.session.commit()
+
+        return jsonify(new_comment.to_dict()), 201
 
     except Exception as e:
         db.session.rollback()

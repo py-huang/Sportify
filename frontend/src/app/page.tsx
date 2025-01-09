@@ -12,20 +12,27 @@ export default function Homepage() {
     location: string;
   }
 
+  interface Discussion {
+    comment_id: number;
+    user_id: string;
+    comment: string;
+    comment_time: string;
+  }
+
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [discussions, setDiscussions] = useState<Discussion[]>([]);
+  const [newComment, setNewComment] = useState<string>("");
 
   useEffect(() => {
-    // 呼叫後端 API 取得事件資料
     fetch("http://localhost:8000/api/events")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json(); // 解析 JSON 格式的回應
+        return response.json();
       })
       .then((data) => {
-        console.log(data); // 顯示取得的資料
         setEvents(data);
       })
       .catch((error) => {
@@ -35,16 +42,32 @@ export default function Homepage() {
 
   const handleRowClick = (event: Event) => {
     setSelectedEvent(event);
+
+    fetch(`http://localhost:8000/api/events/${event.id}/discussions`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setDiscussions(data);
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
   };
 
   const closeModal = () => {
     setSelectedEvent(null);
+    setDiscussions([]);
+    setNewComment("");
   };
 
   const handleSignup = () => {
     if (!selectedEvent) return;
 
-    const userId = "chen_0307"; // 您需要用實際的用戶 ID 替換此部分
+    const userId = "chen_0307";
 
     fetch("http://localhost:8000/api/signup_events", {
       method: "POST",
@@ -59,20 +82,44 @@ export default function Homepage() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Signup successful:", data);
-        // 可以在這裡顯示提示，或更新 UI 以顯示已報名
-        setSelectedEvent(null); // 重新關閉模態框
+        setSelectedEvent(null);
       })
       .catch((error) => {
         console.error("Error during signup:", error);
       });
   };
 
+  const handleAddComment = () => {
+    if (!selectedEvent || !newComment.trim()) return;
+
+    const userId = "chen_0307";
+
+    fetch("http://localhost:8000/api/events/discussions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        event_id: selectedEvent.id,
+        comment: newComment,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setDiscussions((prev) => [...prev, data]);
+        setNewComment("");
+      })
+      .catch((error) => {
+        console.error("Error adding comment:", error);
+      });
+  };
+
   return (
-    <div className="p-4"> 
+    <div className="p-4">
       <h1 className="px-4">所有揪團資訊</h1>
       <div className="overflow-x-auto">
         <table className="table">
-          {/* head */}
           <thead>
             <tr>
               <th>ID</th>
@@ -85,12 +132,11 @@ export default function Homepage() {
             </tr>
           </thead>
           <tbody>
-            {/* Map over events to generate rows */}
             {events.map((event) => (
               <tr
                 className="hover cursor-pointer"
                 key={event.id}
-                onClick={() => handleRowClick(event)} // 使用處理函數
+                onClick={() => handleRowClick(event)}
               >
                 <th>{event.id}</th>
                 <td>{event.host}</td>
@@ -105,19 +151,15 @@ export default function Homepage() {
         </table>
       </div>
 
-      {/* Modal */}
       {selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="modal-box relative w-full bg-white p-8 rounded-lg shadow-lg">
-            <form method="dialog">
-              {/* if there is a button in form, it will close the modal */}
-              <button
-                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                onClick={closeModal}
-              >
-                ✕
-              </button>
-            </form>
+            <button
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              onClick={closeModal}
+            >
+              ✕
+            </button>
             <h3 className="font-bold text-lg">揪團資訊</h3>
             <div className="my-4 p-4 flex flex-col bg-base-200 rounded-lg">
               <p className="py-2">團長：{selectedEvent.host}</p>
@@ -133,12 +175,45 @@ export default function Homepage() {
               <p className="py-2">地點：{selectedEvent.location}</p>
               <hr />
             </div>
-            <button
-              className="btn btn-warning min-w-[150px] text-lg flex-shrink-0"
-              onClick={handleSignup}
-            >
-              加入揪團
-            </button>
+
+            <h3 className="font-bold text-lg mt-6">留言討論</h3>
+            <div className="my-4 p-4 flex flex-col bg-base-200 rounded-lg max-h-64 overflow-y-auto">
+              {discussions.length > 0 ? (
+                discussions.map((discussion) => (
+                  <div key={discussion.comment_id} className="mb-4">
+                    <p className="font-semibold">{discussion.user_id}</p>
+                    <p className="text-sm text-gray-500">{discussion.comment_time}</p>
+                    <p className="mt-2">{discussion.comment}</p>
+                    <hr className="my-2" />
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500">目前尚無留言。</p>
+              )}
+            </div>
+
+            <div className="flex justify-between mt-4">
+              <button
+                className="btn btn-warning min-w-[150px] text-lg"
+                onClick={handleSignup}
+              >
+                加入揪團
+              </button>
+              <div className="flex flex-col items-end">
+                <textarea
+                  className="textarea textarea-bordered w-full mb-2"
+                  placeholder="新增留言..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                />
+                <button
+                  className="btn btn-primary w-full"
+                  onClick={handleAddComment}
+                >
+                  提交留言
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

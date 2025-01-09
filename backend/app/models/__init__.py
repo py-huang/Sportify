@@ -41,3 +41,23 @@ class SIGNUP_RECORD(db.Model):
             "sign_time": self.SIGN_TIME.strftime('%Y-%m-%d %H:%M:%S'),
             "event": self.event.to_dict(),
         }
+        
+class EVENT_DISCUSS(db.Model):
+    __tablename__ = 'event_discuss'
+
+    COMMENT_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    COMMENT_USER_ID = db.Column(db.String(12), nullable=False)
+    COMMENT_EVENT_ID = db.Column(db.Integer, db.ForeignKey('event_list.EVENT_ID'), nullable=False)
+    COMMENT = db.Column(db.String(100), nullable=False)
+    COMMENT_TIME = db.Column(db.TIMESTAMP, nullable=False, default=db.func.current_timestamp())
+
+    event = db.relationship('EVENT_LIST', backref='comments')
+
+    def to_dict(self):
+        return {
+            "comment_id": self.COMMENT_ID,
+            "user_id": self.COMMENT_USER_ID,
+            "event_id": self.COMMENT_EVENT_ID,
+            "comment": self.COMMENT,
+            "comment_time": self.COMMENT_TIME.strftime('%Y-%m-%d %H:%M:%S'),
+        }
