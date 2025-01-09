@@ -3,13 +3,18 @@ import { useEffect, useState } from "react";
 
 export default function Homepage() {
   interface Event {
-    id: number;
-    host: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    description: string;
-    location: string;
+    event: {
+      id: number;
+      host: string;
+      date: string;
+      startTime: string;
+      endTime: string;
+      description: string;
+      location: string;
+    };
+    sign_id: number;
+    sign_user: string;
+    sign_time: string;
   }
 
   const [events, setEvents] = useState<Event[]>([]);
@@ -17,7 +22,7 @@ export default function Homepage() {
 
   useEffect(() => {
     // 呼叫後端 API 取得事件資料
-    fetch("http://localhost:8000/api/events")
+    fetch("http://localhost:8000/api/signup_events/chen_0307")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -41,35 +46,39 @@ export default function Homepage() {
     setSelectedEvent(null);
   };
 
-  const handleSignup = () => {
+  const cancelSignup = () => {
     if (!selectedEvent) return;
 
-    const userId = "chen_0307"; // 您需要用實際的用戶 ID 替換此部分
-
-    fetch("http://localhost:8000/api/signup_events", {
-      method: "POST",
+    fetch("http://localhost:8000/api/cancel_signup_event", {
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: userId,
-        eventId: selectedEvent.id,
+        userId: "chen_0307",
+        eventId: selectedEvent.event.id,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Signup successful:", data);
-        // 可以在這裡顯示提示，或更新 UI 以顯示已報名
-        setSelectedEvent(null); // 重新關閉模態框
+        console.log("Signup canceled:", data);
+
+        // Remove the canceled event from the list
+        setEvents((prevEvents) =>
+          prevEvents.filter((event) => event.sign_id !== selectedEvent.sign_id)
+        );
+
+        // Close the modal
+        closeModal();
       })
       .catch((error) => {
-        console.error("Error during signup:", error);
+        console.error("There was an error canceling the signup:", error);
       });
   };
 
   return (
-    <div className="p-4"> 
-      <h1 className="px-4">所有揪團資訊</h1>
+    <div>
+      <h1 className="px-4">我的報名資訊</h1>
       <div className="overflow-x-auto">
         <table className="table">
           {/* head */}
@@ -82,6 +91,7 @@ export default function Homepage() {
               <th>END TIME</th>
               <th>LOCATION</th>
               <th>DESCRIPTION</th>
+              <th>SIGN UP TIME</th>
             </tr>
           </thead>
           <tbody>
@@ -89,16 +99,17 @@ export default function Homepage() {
             {events.map((event) => (
               <tr
                 className="hover cursor-pointer"
-                key={event.id}
+                key={event.event.id}
                 onClick={() => handleRowClick(event)} // 使用處理函數
               >
-                <th>{event.id}</th>
-                <td>{event.host}</td>
-                <td>{event.date}</td>
-                <td>{event.startTime}</td>
-                <td>{event.endTime}</td>
-                <td>{event.location}</td>
-                <td>{event.description}</td>
+                <th>{event.event.id}</th>
+                <td>{event.event.host}</td>
+                <td>{event.event.date}</td>
+                <td>{event.event.startTime}</td>
+                <td>{event.event.endTime}</td>
+                <td>{event.event.location}</td>
+                <td>{event.event.description}</td>
+                <td>{event.sign_time}</td>
               </tr>
             ))}
           </tbody>
@@ -120,24 +131,29 @@ export default function Homepage() {
             </form>
             <h3 className="font-bold text-lg">揪團資訊</h3>
             <div className="my-4 p-4 flex flex-col bg-base-200 rounded-lg">
-              <p className="py-2">團長：{selectedEvent.host}</p>
-              <hr />
-              <p className="py-2">揪團活動：{selectedEvent.description}</p>
-              <hr />
-              <p className="py-2">日期：{selectedEvent.date}</p>
+              <p className="py-2">團長：{selectedEvent.event.host}</p>
               <hr />
               <p className="py-2">
-                時間：{selectedEvent.startTime} - {selectedEvent.endTime}
+                揪團活動：{selectedEvent.event.description}
               </p>
               <hr />
-              <p className="py-2">地點：{selectedEvent.location}</p>
+              <p className="py-2">日期：{selectedEvent.event.date}</p>
+              <hr />
+              <p className="py-2">
+                時間：{selectedEvent.event.startTime} -{" "}
+                {selectedEvent.event.endTime}
+              </p>
+              <hr />
+              <p className="py-2">地點：{selectedEvent.event.location}</p>
+              <hr />
+              <p className="py-2">報名時間：{selectedEvent.sign_time}</p>
               <hr />
             </div>
             <button
-              className="btn btn-warning min-w-[150px] text-lg flex-shrink-0"
-              onClick={handleSignup}
+              onClick={cancelSignup}
+              className="btn btn-error  min-w-[150px] text-lg flex-shrink-0"
             >
-              加入揪團
+              取消揪團
             </button>
           </div>
         </div>
