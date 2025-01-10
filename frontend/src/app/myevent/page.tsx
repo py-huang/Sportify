@@ -119,6 +119,8 @@ export default function Homepage() {
                 <th>{event.event.id}</th>
                 <td>{event.event.host}</td>
                 <td>{event.event.description}</td>
+                <td>{event.event.host}</td> 
+                <td>{event.event.description}</td>
                 <td>{event.event.date}</td>
                 <td>{event.event.startTime}</td>
                 <td>{event.event.endTime}</td>
