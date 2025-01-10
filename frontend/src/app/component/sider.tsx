@@ -83,7 +83,7 @@ const Sider = () => {
           編輯揪團
         </a>
       </li>
-      <li>
+      {/* <li>
         <a className="font-bold" onClick={() => handleNavigation("/editevent")}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -101,7 +101,7 @@ const Sider = () => {
           </svg>
           揪團簽到
         </a>
-      </li>
+      </li> */}
 
       <li>
         <a className="font-bold" onClick={() => handleNavigation("/profile")}>
