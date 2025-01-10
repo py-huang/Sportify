@@ -12,8 +12,10 @@ const Header = () => {
   };
   return (
     <div className="navbar bg-base-100 w-full shadow-md rounded-lg">
-      <div className="flex-1">
-        <a className="btn btn-ghost bold text-2xl">揪是你</a>
+      <div className="flex-1 ml-2">
+        <img className="w-10 h-10" src="./point.png" alt="圖片描述" />
+
+        <a className="btn btn-ghost bold text-2xl">Sportify 揪是你</a>
       </div>
       <div className="flex-none">
         <div className="dropdown dropdown-end">
@@ -54,7 +56,7 @@ const Header = () => {
               />
             </div>
           </div>
-          <ul
+          {/* <ul
             tabIndex={0}
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
           >
@@ -70,7 +72,7 @@ const Header = () => {
             <li>
               <a>Logout</a>
             </li>
-          </ul>
+          </ul> */}
         </div>
       </div>
     </div>
