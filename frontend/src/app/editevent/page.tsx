@@ -126,19 +126,35 @@ export default function Homepage() {
 
   return (
     <div className="p-4 w-full">
-      <h1 className="px-4">你的揪團活動</h1>
-      <div className="overflow-x-auto">
+      <div className="font-bold text-xl flex flex-row items-center gap-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5 "
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+        編輯你的揪團活動
+      </div>
+      <div className="overflow-x-auto mt-4">
         <table className="table">
           {/* head */}
           <thead>
             <tr>
               <th>ID</th>
               <th>HOST</th>
+              <th>DESCRIPTION</th>
               <th>DATE</th>
               <th>START TIME</th>
               <th>END TIME</th>
               <th>LOCATION</th>
-              <th>DESCRIPTION</th>
             </tr>
           </thead>
           <tbody>
@@ -151,11 +167,11 @@ export default function Homepage() {
               >
                 <th>{event.id}</th>
                 <td>{event.host}</td>
+                <td>{event.description}</td>
                 <td>{event.date}</td>
                 <td>{event.startTime}</td>
                 <td>{event.endTime}</td>
                 <td>{event.location}</td>
-                <td>{event.description}</td>
               </tr>
             ))}
           </tbody>

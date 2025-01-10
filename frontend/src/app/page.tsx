@@ -117,18 +117,34 @@ export default function Homepage() {
 
   return (
     <div className="p-4">
-      <h1 className="px-4">所有揪團資訊</h1>
-      <div className="overflow-x-auto">
+      <div className="font-bold text-xl flex flex-row items-center gap-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+          />
+        </svg>
+        所有揪團資訊
+      </div>
+      <div className="overflow-x-auto mt-4">
         <table className="table">
           <thead>
             <tr>
               <th>ID</th>
               <th>HOST</th>
+              <th>DESCRIPTION</th>
               <th>DATE</th>
               <th>START TIME</th>
               <th>END TIME</th>
               <th>LOCATION</th>
-              <th>DESCRIPTION</th>
             </tr>
           </thead>
           <tbody>
@@ -140,11 +156,11 @@ export default function Homepage() {
               >
                 <th>{event.id}</th>
                 <td>{event.host}</td>
+                <td>{event.description}</td>
                 <td>{event.date}</td>
                 <td>{event.startTime}</td>
                 <td>{event.endTime}</td>
                 <td>{event.location}</td>
-                <td>{event.description}</td>
               </tr>
             ))}
           </tbody>
@@ -180,9 +196,11 @@ export default function Homepage() {
             <div className="my-4 p-4 flex flex-col bg-base-200 rounded-lg max-h-64 overflow-y-auto">
               {discussions.length > 0 ? (
                 discussions.map((discussion) => (
-                  <div key={discussion.comment_id} className="mb-4">
+                  <div key={discussion.comment_id}>
                     <p className="font-semibold">{discussion.user_id}</p>
-                    <p className="text-sm text-gray-500">{discussion.comment_time}</p>
+                    <p className="text-sm text-gray-500">
+                      {discussion.comment_time}
+                    </p>
                     <p className="mt-2">{discussion.comment}</p>
                     <hr className="my-2" />
                   </div>
@@ -192,14 +210,8 @@ export default function Homepage() {
               )}
             </div>
 
-            <div className="flex justify-between mt-4">
-              <button
-                className="btn btn-warning min-w-[150px] text-lg"
-                onClick={handleSignup}
-              >
-                加入揪團
-              </button>
-              <div className="flex flex-col items-end">
+            <div className="flex flex-col justify-between mt-4 gap-4">
+              <div className="flex flex-col items-end w-full">
                 <textarea
                   className="textarea textarea-bordered w-full mb-2"
                   placeholder="新增留言..."
@@ -213,6 +225,12 @@ export default function Homepage() {
                   提交留言
                 </button>
               </div>
+              <button
+                className="btn btn-warning min-w-[150px] text-lg"
+                onClick={handleSignup}
+              >
+                加入揪團
+              </button>
             </div>
           </div>
         </div>
