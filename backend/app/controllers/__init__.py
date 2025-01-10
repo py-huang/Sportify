@@ -223,19 +223,15 @@ def add_join_record():
         if not all([user_id, event_id]):
             abort(400, description="Missing required fields")
 
-        # 自動生成 join_time 和 leave_time
         join_time = datetime.now()
-        leave_time = datetime.now() # 初始設定為 None，稍後可更新
+        leave_time = datetime.now() 
 
-        # 自動生成 is_absence
-        is_absence = 1  # 預設為 0，表示出席
+        is_absence = 1 
 
-        # 檢查記錄是否已存在
         existing_record = JOIN_RECORD.query.filter_by(JOIN_USER_ID=user_id, JOIN_EVENT_ID=event_id).first()
         if existing_record:
             return jsonify({"message": "Join record already exists for this user and event."}), 400
 
-        # 新增記錄
         new_record = JOIN_RECORD(
             JOIN_USER_ID=user_id,
             JOIN_EVENT_ID=event_id,
@@ -256,14 +252,11 @@ def add_join_record():
 
 def get_user_joined_events(user_id):
     try:
-        # 查詢 JOIN_RECORD 表格，並與 EVENT_LIST 進行連接，取得該使用者的所有參加活動紀錄
         joined_events = JOIN_RECORD.query.join(EVENT_LIST, JOIN_RECORD.JOIN_EVENT_ID == EVENT_LIST.EVENT_ID).filter(JOIN_RECORD.JOIN_USER_ID == user_id).all()
 
-        # 如果沒有該使用者的活動紀錄，回傳空列表
         if not joined_events:
             return jsonify({"message": f"No joined events found for user_id: {user_id}"}), 404
 
-        # 返回結果，並將 JOIN_RECORD 和 EVENT_LIST 資料一起返回
         return jsonify([record.to_dict() for record in joined_events]), 200
 
     except Exception as e:
@@ -272,14 +265,11 @@ def get_user_joined_events(user_id):
 
 def get_user_info(user_id):
     try:
-        # 查詢指定 user_id 的使用者資訊
         user = USER.query.filter_by(USERID=user_id).first()
 
-        # 如果使用者不存在，返回 404
         if not user:
             return jsonify({"message": f"User with ID {user_id} not found"}), 404
 
-        # 返回使用者資訊，假設 USER_LIST 有 to_dict 方法來轉換為字典
         return jsonify(user.to_dict()), 200
 
     except Exception as e:
