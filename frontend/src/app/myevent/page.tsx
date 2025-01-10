@@ -93,7 +93,7 @@ export default function Homepage() {
         </svg>
         我的報名資訊
       </div>
-      <div className="overflow-x-auto  mt-4">
+      <div className="overflow-x-auto  mt-4 w-full">
         <table className="table">
           {/* head */}
           <thead>
@@ -118,8 +118,6 @@ export default function Homepage() {
               >
                 <th>{event.event.id}</th>
                 <td>{event.event.host}</td>
-                <td>{event.event.description}</td>
-                <td>{event.event.host}</td> 
                 <td>{event.event.description}</td>
                 <td>{event.event.date}</td>
                 <td>{event.event.startTime}</td>
