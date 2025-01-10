@@ -67,20 +67,35 @@ class JOIN_RECORD(db.Model):
 
     JOIN_USER_ID = db.Column(db.String(12), db.ForeignKey('users.USERID'), primary_key=True, nullable=False)
     JOIN_EVENT_ID = db.Column(db.Integer, db.ForeignKey('event_list.EVENT_ID'), primary_key=True, nullable=False)
-    JOIN_TIME = db.Column(db.Time, nullable=True, default=None)  # 預設為 None
-    LEAVE_TIME = db.Column(db.Time, nullable=True, default=None)  # 預設為 None
-    IS_ABSENCE = db.Column(db.Boolean, nullable=False, default=0)  # 預設為 0 (非缺席)
+    JOIN_TIME = db.Column(db.Time, nullable=True, default=None)
+    LEAVE_TIME = db.Column(db.Time, nullable=True, default=None)
+    IS_ABSENCE = db.Column(db.Boolean, nullable=False, default=0)
 
     event = db.relationship('EVENT_LIST', backref='join_records')
 
+ 
     def to_dict(self):
+        # 返回與活動有關的所有欄位資料
+        event_dict = {
+            "id": self.event.EVENT_ID,
+            "host": self.event.HOST_ID,
+            "date": self.event.EVENT_DATE.strftime('%Y-%m-%d') if self.event.EVENT_DATE else None,
+            "startTime": self.event.EVENT_START_TIME.strftime('%H:%M:%S') if self.event.EVENT_START_TIME else None,
+            "endTime": self.event.EVENT_END_TIME.strftime('%H:%M:%S') if self.event.EVENT_END_TIME else None,
+            "description": self.event.EVENT_SPORT,
+            "location": self.event.EVENT_LOCATION
+        }
+
+        # 返回 JOIN_RECORD 資料，並嵌套 event 資料
         return {
             "join_user_id": self.JOIN_USER_ID,
             "join_event_id": self.JOIN_EVENT_ID,
             "join_time": self.JOIN_TIME.strftime('%H:%M:%S') if self.JOIN_TIME else None,
             "leave_time": self.LEAVE_TIME.strftime('%H:%M:%S') if self.LEAVE_TIME else None,
             "is_absence": self.IS_ABSENCE,
+            "event": event_dict  # 在這裡返回 event 的所有資訊
         }
+
 class USER(db.Model):
     __tablename__ = 'users'
 
