@@ -105,7 +105,6 @@ export default function Homepage() {
               <th>START TIME</th>
               <th>END TIME</th>
               <th>LOCATION</th>
-
               <th>SIGN UP TIME</th>
             </tr>
           </thead>
