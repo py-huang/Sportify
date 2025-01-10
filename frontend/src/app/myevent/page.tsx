@@ -75,6 +75,34 @@ export default function Homepage() {
         console.error("There was an error canceling the signup:", error);
       });
   };
+  const JoinRecord = () => {
+    if (!selectedEvent) return;
+
+    fetch("http://localhost:8000/api/join_records", {
+      method: "POST", // DELETE method to cancel the join record
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        user_id: "chen_0307", // User ID
+        event_id: selectedEvent.event.id, // Event ID
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Join recorded:", data);
+
+        setEvents((prevEvents) =>
+          prevEvents.filter((event) => event.sign_id !== selectedEvent.sign_id)
+        );
+
+        closeModal();
+      })
+      .catch((error) => {
+        console.error("There was an error the join record:", error);
+      });
+  };
 
   return (
     <div>
@@ -93,7 +121,7 @@ export default function Homepage() {
         </svg>
         我的報名資訊
       </div>
-      <div className="overflow-x-auto  mt-4">
+      <div className="overflow-x-auto  mt-4 w-full">
         <table className="table">
           {/* head */}
           <thead>
@@ -118,8 +146,6 @@ export default function Homepage() {
               >
                 <th>{event.event.id}</th>
                 <td>{event.event.host}</td>
-                <td>{event.event.description}</td>
-                <td>{event.event.host}</td> 
                 <td>{event.event.description}</td>
                 <td>{event.event.date}</td>
                 <td>{event.event.startTime}</td>
@@ -165,12 +191,20 @@ export default function Homepage() {
               <p className="py-2">報名時間：{selectedEvent.sign_time}</p>
               <hr />
             </div>
-            <button
-              onClick={cancelSignup}
-              className="btn btn-error  min-w-[150px] text-lg flex-shrink-0"
-            >
-              取消揪團
-            </button>
+            <div className="flex flex-row justify-between gap-4">
+              <button
+                onClick={cancelSignup}
+                className="btn btn-error  min-w-[150px] text-lg flex-shrink-0"
+              >
+                取消揪團
+              </button>
+              <button
+                onClick={JoinRecord}
+                className="btn btn-success  min-w-[150px] text-lg flex-shrink-0"
+              >
+                揪團簽到
+              </button>
+            </div>
           </div>
         </div>
       )}

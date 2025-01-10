@@ -61,3 +61,42 @@ class EVENT_DISCUSS(db.Model):
             "comment": self.COMMENT,
             "comment_time": self.COMMENT_TIME.strftime('%Y-%m-%d %H:%M:%S'),
         }
+
+class JOIN_RECORD(db.Model):
+    __tablename__ = 'join_record'
+
+    JOIN_USER_ID = db.Column(db.String(12), db.ForeignKey('users.USERID'), primary_key=True, nullable=False)
+    JOIN_EVENT_ID = db.Column(db.Integer, db.ForeignKey('event_list.EVENT_ID'), primary_key=True, nullable=False)
+    JOIN_TIME = db.Column(db.Time, nullable=True, default=None)  # 預設為 None
+    LEAVE_TIME = db.Column(db.Time, nullable=True, default=None)  # 預設為 None
+    IS_ABSENCE = db.Column(db.Boolean, nullable=False, default=0)  # 預設為 0 (非缺席)
+
+    event = db.relationship('EVENT_LIST', backref='join_records')
+
+    def to_dict(self):
+        return {
+            "join_user_id": self.JOIN_USER_ID,
+            "join_event_id": self.JOIN_EVENT_ID,
+            "join_time": self.JOIN_TIME.strftime('%H:%M:%S') if self.JOIN_TIME else None,
+            "leave_time": self.LEAVE_TIME.strftime('%H:%M:%S') if self.LEAVE_TIME else None,
+            "is_absence": self.IS_ABSENCE,
+        }
+class USER(db.Model):
+    __tablename__ = 'users'
+
+    USERID = db.Column(db.String(12), primary_key=True)
+    NAME = db.Column(db.String(10), nullable=False)
+    SEX = db.Column(db.String(2), nullable=False)
+    AGE = db.Column(db.Integer, nullable=False)
+    IS_NCCU = db.Column(db.Boolean, nullable=False)
+    INTRODUCE = db.Column(db.String(100), nullable=True)
+
+    def to_dict(self):
+        return {
+            "user_id": self.USERID,
+            "name": self.NAME,
+            "sex": self.SEX,
+            "age": self.AGE,
+            "is_nccu": self.IS_NCCU,
+            "introduce": self.INTRODUCE,
+        }
