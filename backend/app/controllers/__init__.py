@@ -1,5 +1,5 @@
 from flask import request, jsonify, abort
-from ..models import db, EVENT_LIST, SIGNUP_RECORD, EVENT_DISCUSS
+from ..models import db, EVENT_LIST, SIGNUP_RECORD, EVENT_DISCUSS, JOIN_RECORD, USER
 from datetime import datetime
 
 def get_events():
@@ -57,32 +57,6 @@ def update_event(event_id):
         event.EVENT_LOCATION = data.get('location', event.EVENT_LOCATION)
         event.EVENT_SPORT = data.get('description', event.EVENT_SPORT)
         event.HOST_ID = data.get('host', event.HOST_ID)
-
-        # 提交更改
-        db.session.commit()
-
-        return jsonify({"message": f"Event with ID {event_id} updated successfully"}), 200
-    except Exception as e:
-        db.session.rollback()
-        print(f"Error: {e}")
-        return jsonify({"error": str(e)}), 500
-
-    try:
-        # 查找要修改的事件
-        event = EVENT_LIST.query.get(event_id)
-        if not event:
-            return jsonify({"message": f"Event with ID {event_id} not found"}), 404
-
-        # 取得 JSON 資料
-        data = request.json
-
-        # 更新事件資訊
-        event.host = data.get('host', event.HOST_ID)
-        event.date = data.get('date', event.EVENT_DATE)
-        event.start_time = data.get('startTime', event.EVENT_START_TIME)
-        event.end_time = data.get('endTime', event.EVENT_END_TIME)
-        event.location = data.get('location', event.EVENT_LOCATION)
-        event.description = data.get('description', event.EVENT_SPORT)
 
         # 提交更改
         db.session.commit()
@@ -234,5 +208,70 @@ def add_discussion():
 
     except Exception as e:
         db.session.rollback()
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+def add_join_record():
+    try:
+        data = request.get_json()
+        if not data:
+            abort(400, description="Invalid JSON payload")
+
+        user_id = data.get('user_id')
+        event_id = data.get('event_id')
+
+        if not all([user_id, event_id]):
+            abort(400, description="Missing required fields")
+
+        join_time = datetime.now()
+        leave_time = datetime.now() 
+
+        is_absence = 1 
+
+        existing_record = JOIN_RECORD.query.filter_by(JOIN_USER_ID=user_id, JOIN_EVENT_ID=event_id).first()
+        if existing_record:
+            return jsonify({"message": "Join record already exists for this user and event."}), 400
+
+        new_record = JOIN_RECORD(
+            JOIN_USER_ID=user_id,
+            JOIN_EVENT_ID=event_id,
+            JOIN_TIME=join_time,
+            LEAVE_TIME=leave_time,
+            IS_ABSENCE=is_absence
+        )
+
+        db.session.add(new_record)
+        db.session.commit()
+
+        return jsonify(new_record.to_dict()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+def get_user_joined_events(user_id):
+    try:
+        joined_events = JOIN_RECORD.query.join(EVENT_LIST, JOIN_RECORD.JOIN_EVENT_ID == EVENT_LIST.EVENT_ID).filter(JOIN_RECORD.JOIN_USER_ID == user_id).all()
+
+        if not joined_events:
+            return jsonify({"message": f"No joined events found for user_id: {user_id}"}), 404
+
+        return jsonify([record.to_dict() for record in joined_events]), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+def get_user_info(user_id):
+    try:
+        user = USER.query.filter_by(USERID=user_id).first()
+
+        if not user:
+            return jsonify({"message": f"User with ID {user_id} not found"}), 404
+
+        return jsonify(user.to_dict()), 200
+
+    except Exception as e:
         print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
