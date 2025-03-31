@@ -1,21 +1,11 @@
 # Sportify
 
-在進入政大就讀後，許多人經常因為找不到人一起打球，也不清楚有哪些場地可用而感到困擾。因此，我們希望能設計一個平台來解決這些問題。
+After entering university, many people often struggle to find someone to play sports with and are unaware of available venues. Therefore, we aim to design a platform to solve these problems.  
 
-這個平台將提供以下功能：
+This platform will provide the following features:  
 
-- 揪團功能：使用者（主揪）可以發起揪團活動，並填寫相關資訊，如場地、時間、參與人數等。
-- 報名功能：其他使用者能瀏覽平台上的揪團資訊，選擇感興趣的活動並進行報名，實現一起打球的需求。
-
-# Team Fellows
-
-113753121 | 陳昶安 | 資科碩一（隊長）
-
-113753218 | 李柏漢 | 資科碩一
-
-113753115 | 張瀚文 | 資科碩一
-
-109zu1004 | 黃沛婕 | 資科四
+- **Group Matchmaking**: Users (organizers) can initiate group activities and fill in relevant details such as location, time, and the number of participants.  
+- **Registration**: Other users can browse group activities on the platform, select the ones they are interested in, and sign up to play together.
 
 # Sportify - frontend
 
